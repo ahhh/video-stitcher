@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline Composer — browser video editor</title>
+  <meta name="description" content="Combine photos, video clips, and music into one video — entirely in your browser. Nothing is uploaded.">
+  <link rel="stylesheet" href="styles/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+  <header id="toolbar">
+    <span class="app-title">🎬 Timeline Composer</span>
+    <input id="project-name" type="text" value="Untitled project" spellcheck="false" aria-label="Project name">
+    <div class="toolbar-group">
+      <button id="btn-new" title="New project">New</button>
+      <button id="btn-open" title="Open a saved project file">Open</button>
+      <button id="btn-import" title="Import photos, videos, and music" class="primary">Import</button>
+      <button id="btn-save" title="Save project file (layout only, media relinked on open)">Save</button>
+      <button id="btn-save-bundle" title="Save a portable .zip bundle with all media included">Bundle</button>
+      <button id="btn-relink" title="Relink missing media">Relink</button>
+      <button id="btn-export" title="Export the timeline as a WebM video" class="accent">Export</button>
+    </div>
+    <div class="toolbar-group toolbar-settings">
+      <select id="resolution-select" aria-label="Output resolution"></select>
+      <select id="fps-select" aria-label="Frame rate">
+        <option value="24">24 fps</option>
+        <option value="30" selected>30 fps</option>
+        <option value="60">60 fps</option>
+      </select>
+    </div>
+  </header>
+
+  <main id="workspace">
+    <aside id="media-bin" class="panel">
+      <h2 class="panel-title">Media</h2>
+      <div id="media-list"></div>
+    </aside>
+
+    <section id="preview" class="panel">
+      <div id="preview-stage">
+        <canvas id="preview-canvas" width="1280" height="720"></canvas>
+      </div>
+      <div id="transport">
+        <button id="btn-to-start" title="Go to start (Home)">⏮</button>
+        <button id="btn-play" title="Play / pause (Space)">▶</button>
+        <button id="btn-to-end" title="Go to end (End)">⏭</button>
+        <span id="time-display">0:00.0 / 0:00.0</span>
+      </div>
+    </section>
+
+    <aside id="inspector" class="panel">
+      <h2 class="panel-title">Inspector</h2>
+      <div id="inspector-body"></div>
+    </aside>
+  </main>
+
+  <section id="timeline-panel" class="panel">
+    <div id="timeline-toolbar">
+      <span class="panel-title">Timeline</span>
+      <span class="timeline-hint">drag clips · drag edges to trim · shift disables snap · ⌘/ctrl-scroll zooms</span>
+      <span class="spacer"></span>
+      <button id="btn-add-layer" title="Add a video layer above the existing ones">+ Layer</button>
+      <span>Length: <strong id="timeline-duration">0:00.0</strong></span>
+      <button id="zoom-out" title="Zoom out (-)">−</button>
+      <button id="zoom-in" title="Zoom in (+)">+</button>
+    </div>
+    <div id="timeline-body">
+      <div id="track-labels">
+        <div class="label-ruler-spacer"></div>
+      </div>
+      <div id="timeline-scroll">
+        <div id="timeline-content">
+          <div id="ruler"></div>
+          <div id="tracks"></div>
+          <div id="playhead"><div class="playhead-cap"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="drop-overlay" hidden><div class="drop-message">Drop media to import</div></div>
+  <div id="modal-root" hidden></div>
+  <div id="toast-root"></div>
+
+  <input id="import-input" type="file" multiple accept="image/*,video/*,audio/*" hidden>
+  <input id="open-input" type="file" accept=".json,.zip,application/json,application/zip" hidden>
+
+  <script>
+    // ES modules are blocked on file:// — tell the user instead of dying silently.
+    if (location.protocol === 'file:') {
+      document.addEventListener('DOMContentLoaded', () => {
+        const el = document.createElement('div');
+        el.style.cssText = 'position:fixed;inset:0;z-index:100;display:flex;align-items:center;'
+          + 'justify-content:center;background:rgba(12,12,16,.95);color:#e6e6ee;'
+          + 'font:15px/1.6 system-ui;padding:24px;text-align:center;';
+        el.innerHTML = '<div><h2>This app needs to be served over HTTP</h2>'
+          + '<p>Browsers block JavaScript modules when a page is opened directly from disk.</p>'
+          + '<p>Run <code style="background:#24242e;padding:2px 8px;border-radius:4px">'
+          + 'python3 -m http.server 8080</code> in the project folder,<br>'
+          + 'then open <code style="background:#24242e;padding:2px 8px;border-radius:4px">'
+          + 'http://localhost:8080</code></p></div>';
+        document.body.appendChild(el);
+      });
+    }
+  </script>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Node (only used for local tooling; the app itself has no build step)
+node_modules/
+npm-debug.log*
+
+# Local scratch / test output
+*.log
+*.webm
+*.timeline.zip
+*.timeline-composer.json
